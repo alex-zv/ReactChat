@@ -1,0 +1,1 @@
+C:\Windows\System32\cmd.exe /k e: /k cd "Program Files\OpenServer\domains\"
