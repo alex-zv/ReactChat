@@ -1,3 +1,3 @@
-export function loadOrdersData(payload) {
-    return { type: "LOAD_ORDERS_DATA", payload };
+export function loadUsersData(payload) {
+    return { type: "LOAD_USERS_DATA", payload };
 }

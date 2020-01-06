@@ -18,7 +18,7 @@
 
 global $mysqli;
 
-$mysqli = new mysqli('localhost', 'root', '', 'reactcrm_db');
+$mysqli = new mysqli('localhost', 'root', '', 'newreactcrm_db');
 
 // О нет!! переменная connect_errno существует, а это значит, что соединение не было успешным!
 if ($mysqli->connect_errno) {

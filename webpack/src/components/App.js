@@ -1,4 +1,5 @@
 import React from "react";
+import Chat from "./chat/Chat";
 
 import axios from "axios";
 import {connect} from "react-redux";
@@ -12,11 +13,7 @@ class App extends React.Component {
     }
     render () {
         return (
-            <React.Fragment>
-                <div>
-                    App Ready
-                </div>
-            </React.Fragment>
+            <Chat />
         )
     }
 }

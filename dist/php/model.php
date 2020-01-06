@@ -2,7 +2,7 @@
 require_once('config.php');
 session_start();
 
-class TaskModel {
+class MainModel {
     public function index () {
 
     }
@@ -333,6 +333,6 @@ class TaskModel {
 
 global $model;
 
-$model = new TaskModel();
+$model = new MainModel();
 
 ?>

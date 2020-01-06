@@ -1,3 +1,5 @@
+@import "reset.scss";
+
 * {
     margin: 0;
     padding: 0;
@@ -6,6 +8,7 @@
     box-sizing: border-box;
     outline: none;
 }
+
 @mixin placeholder($color, $font) {
     &::-webkit-input-placeholder {
         color: $color;
@@ -48,210 +51,8 @@ body {
     cursor: pointer;
 }
 
-input:not([type=radio]), textarea {
-    font-size: 14px;
-    color: #333;
-    padding:  5px;
-    border: 1px solid #333;
-    width: 100%;
-    @include placeholder(#959595, 400 12px/1 $font_main);
+.img-responsive {
+    max-width: 100%;
 }
 
-textarea {
-    min-height: 100px;
-    resize:none;
-}
-
-header {
-    display: flex;
-    padding: 10px 20px;
-    .account-info {
-        margin-left: auto;
-        button {
-            margin-left: 10px;
-        }
-    }
-}
-
-.input-wrap {
-    margin-bottom: 10px;
-    &:last-child {
-        margin-bottom: 0;
-    }
-    input {
-        width:100%;
-        padding: 5px 10px;
-        border: 1px solid #ccc4c4;
-        border-radius: 5px;
-    }
-}
-
-.btn-style {
-    display: inline-block;
-    padding: 5px 10px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    background: #52ffe7;
-    color: #000;
-    transition: all .2s;
-    &:hover {
-        background: #00cdff;
-    
-    }
-}
-
-.form-container {
-    max-width: 400px;
-    margin: 100px auto;
-}
-
-
-
-.task-container {
-    max-width: 900px;
-    margin: 40px auto;
-    
-    .task-top {
-        margin-bottom:10px;
-    
-        .task-sort {
-            select {
-                padding: 5px;
-            }
-        }
-    }
-   
-    &__head {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px;
-        border: 1px solid #333;
-        border-bottom: 0;
-        > div {
-            padding: 0 5px;
-        }
-    }
-    
-    &__body {
-        border: 1px solid #333;
-    }
-    
-    .task-item {
-        border-bottom: 1px solid #333;
-        &:last-child {
-            border-bottom:0;
-        }
-        //margin-bottom: 10px;
-        &__content{
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            transition: all .3s;
-            > div {
-                padding: 0 5px;
-            }
-            .btn-off-width {
-                text-align: right;
-            }
-            .author-width {
-                font-size: 14px;
-            }
-        }
-        .title {
-        }
-        .btn-open {
-            button {
-                font-size: 12px;
-                width: 100%;
-            }
-        }
-        &.active {
-            .task-item__content {
-                background: #11ff75;
-                
-            }
-        }
-    }
-    
-    .id-width {
-        flex-basis:10%;
-    }
-    .title-width {
-        flex-basis: 20%;
-    }
-    .task-time-width {
-        flex-basis:20%;
-    }
-    .author-width {
-        flex-basis: 25%;
-    }
-    .btn-open-width {
-        flex-basis: 15%;
-    }
-    .btn-off-width {
-        flex-basis: 10%;
-    }
-}
-
-.task-container .task-item > div {
-    flex-grow: 1;
-}
-.task-container .task-item .description {
-    display: none;
-    margin-top: 20px;
-    font-size: 14px;
-    padding: 10px;
-}
-
-.task-container .task-item .description.open {
-    display: block;
-}
-.task-container .task-item:last-child {
-    margin-bottom: 0;
-}
-
-// task-panel
-
-
-.task-add-container {
-    position: relative;
-
-    .task-add-panel {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 230px;
-        background: #fff;
-        padding: 10px 15px;
-        box-shadow: 0 5px 35px 0 rgba(25,30,34,.41);
-        .add-panel-item {
-            margin-bottom: 10px;
-            &:last-child {
-                margin-bottom: 0;
-            }
-            button {
-                width: 100%;
-            }
-        }
-    }
-}
-
-#report {
-    table {
-        border-collapse: collapse;
-        td {
-            border: 1px solid #000;
-            padding: 5px 7px;
-        }
-    }
-}
-
-.report-settings {
-    .report-type {
-        label {
-            display: block;
-        }
-    }
-}
+@import 'chat.scss';

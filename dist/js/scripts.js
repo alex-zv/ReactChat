@@ -37271,6 +37271,8 @@ exports["default"] = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
+var _Chat = _interopRequireDefault(__webpack_require__(/*! ./chat/Chat */ "./src/components/chat/Chat.jsx"));
+
 var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
 
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
@@ -37315,7 +37317,7 @@ function (_React$Component) {
   _createClass(App, [{
     key: "render",
     value: function render() {
-      return _react["default"].createElement(_react["default"].Fragment, null, _react["default"].createElement("div", null, "App Ready"));
+      return _react["default"].createElement(_Chat["default"], null);
     }
   }]);
 
@@ -37328,6 +37330,308 @@ function mapStateToProps(state) {
 }
 
 var _default = (0, _reactRedux.connect)(mapStateToProps)(App);
+
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/chat/Chat.jsx":
+/*!**************************************!*\
+  !*** ./src/components/chat/Chat.jsx ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+var _History = _interopRequireDefault(__webpack_require__(/*! ./History */ "./src/components/chat/History.jsx"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Chat =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(Chat, _React$Component);
+
+  function Chat(props) {
+    _classCallCheck(this, Chat);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Chat).call(this, props));
+  }
+
+  _createClass(Chat, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {}
+  }, {
+    key: "render",
+    value: function render() {
+      return _react["default"].createElement("div", {
+        className: "chat"
+      }, _react["default"].createElement("div", {
+        className: "chat-wrapper"
+      }, _react["default"].createElement("div", {
+        className: "chat-sidebar"
+      }, "Menu here"), _react["default"].createElement("div", {
+        className: "chat-top-panel"
+      }, _react["default"].createElement("div", null, "Menu btn")), _react["default"].createElement("div", {
+        className: "chat-main"
+      }, _react["default"].createElement(_History["default"], null), _react["default"].createElement("div", {
+        className: "bottom-panel"
+      }, _react["default"].createElement("div", {
+        className: "bottom-panel__left"
+      }, _react["default"].createElement("div", {
+        className: "btn btn-attachment"
+      }, "F")), _react["default"].createElement("div", {
+        className: "bottom-panel__middle"
+      }, _react["default"].createElement("textarea", {
+        placeholder: "Your message"
+      })), _react["default"].createElement("div", {
+        className: "bottom-panel__right"
+      }, _react["default"].createElement("button", {
+        className: "btn"
+      }, "Send"))))));
+    }
+  }]);
+
+  return Chat;
+}(_react["default"].Component);
+
+function mapStateToProps(state) {
+  return {// orderBooksData: state.orderBooksData,
+  };
+}
+
+var _default = (0, _reactRedux.connect)(mapStateToProps)(Chat);
+
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/chat/History.jsx":
+/*!*****************************************!*\
+  !*** ./src/components/chat/History.jsx ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+var _Message = _interopRequireDefault(__webpack_require__(/*! ./Message */ "./src/components/chat/Message.jsx"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var History =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(History, _React$Component);
+
+  function History(props) {
+    var _this;
+
+    _classCallCheck(this, History);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(History).call(this, props));
+    _this.state = {};
+    _this.historyContainer = _react["default"].createRef();
+    return _this;
+  }
+
+  _createClass(History, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      this.historyContainer.current.scrollTop = this.historyContainer.current.scrollHeight;
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      var messages = this.props.history.map(function (message, index) {
+        return _react["default"].createElement(_Message["default"], {
+          data: message,
+          key: message.history_id
+        });
+      });
+      return _react["default"].createElement("div", {
+        className: "history-container",
+        ref: this.historyContainer
+      }, messages);
+    }
+  }]);
+
+  return History;
+}(_react["default"].Component);
+
+var mapStateToProps = function mapStateToProps(state) {
+  return {
+    users: state.users,
+    history: state.history
+  };
+};
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    test: function test(content) {
+      dispatch({
+        type: 'TEST_TYPE',
+        payload: '123123'
+      });
+    }
+  };
+};
+
+var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(History);
+
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/chat/Message.jsx":
+/*!*****************************************!*\
+  !*** ./src/components/chat/Message.jsx ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Message =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(Message, _React$Component);
+
+  function Message(props) {
+    _classCallCheck(this, Message);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(Message).call(this, props));
+  }
+
+  _createClass(Message, [{
+    key: "render",
+    value: function render() {
+      var _this$props$data = this.props.data,
+          userName = _this$props$data.userName,
+          text = _this$props$data.text,
+          date = _this$props$data.date;
+      return _react["default"].createElement("div", {
+        className: "message-item"
+      }, _react["default"].createElement("div", {
+        className: "message-item__avatar"
+      }, _react["default"].createElement("img", {
+        className: "img-responsive",
+        src: "img/avatar_placeholder.png",
+        alt: ""
+      })), _react["default"].createElement("div", {
+        className: "message-item__body"
+      }, _react["default"].createElement("div", {
+        className: "message-item__top"
+      }, _react["default"].createElement("div", {
+        className: "message-item__name"
+      }, userName), _react["default"].createElement("div", {
+        className: "message-item__date"
+      }, date)), _react["default"].createElement("div", {
+        className: "message-item__text"
+      }, text)));
+    }
+  }]);
+
+  return Message;
+}(_react["default"].Component);
+
+function mapStateToProps(state) {
+  return {// orderBooksData: state.orderBooksData,
+  };
+}
+
+var _default = (0, _reactRedux.connect)(mapStateToProps)(Message);
 
 exports["default"] = _default;
 
@@ -37385,16 +37689,59 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 var domain = '';
-var initialState = {};
+var initialState = {
+  users: [{
+    id: 1,
+    name: 'John',
+    isOnline: false,
+    isTyping: false
+  }, {
+    id: 2,
+    name: 'Jane',
+    isOnline: true,
+    isTyping: false
+  }],
+  history: [{
+    history_id: 1,
+    userName: 'John',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur fugiat pariatur placeat quam? Amet facilis odio perferendis quam similique tempora.',
+    date: '21:48:12'
+  }, {
+    history_id: 2,
+    userName: 'Jane',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate dolorum earum ipsa nisi unde voluptates!',
+    date: '21:49:48'
+  }, {
+    history_id: 3,
+    userName: 'John',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur fugiat pariatur placeat quam? Amet facilis odio perferendis quam similique tempora.',
+    date: '21:48:12'
+  }, {
+    history_id: 4,
+    userName: 'Jane',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate dolorum earum ipsa nisi unde voluptates!',
+    date: '21:49:48'
+  }, {
+    history_id: 5,
+    userName: 'John',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur fugiat pariatur placeat quam? Amet facilis odio perferendis quam similique tempora.',
+    date: '21:48:12'
+  }, {
+    history_id: 6,
+    userName: 'Jane',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate dolorum earum ipsa nisi unde voluptates!',
+    date: '21:49:48'
+  }]
+};
 
 function rootReducer() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
   var action = arguments.length > 1 ? arguments[1] : undefined;
 
   switch (action.type) {
-    case 'LOAD_ORDERS_DATA':
+    case 'LOAD_USERS_DATA':
       return _objectSpread({}, state, {
-        orderBooksData: action.payload
+        users: action.payload
       });
 
     default:
