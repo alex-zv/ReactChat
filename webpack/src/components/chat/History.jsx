@@ -20,6 +20,8 @@ class History extends React.Component {
 
     render () {
 
+        console.log(this.props.history);
+
         const messages = this.props.history.map( (message, index) =>
             <Message data={message} key={message.history_id} />
         );
@@ -39,10 +41,6 @@ const mapStateToProps = (state) => {
     };
 };
 
-const mapDispatchToProps = (dispatch) => {
-    return {
-        test: (content) => { dispatch({type: 'TEST_TYPE', payload: '123123'}) }
-    };
-};
 
-export default connect(mapStateToProps, mapDispatchToProps)(History);
+
+export default connect(mapStateToProps)(History);

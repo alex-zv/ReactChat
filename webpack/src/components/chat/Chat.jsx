@@ -4,12 +4,30 @@ import axios from "axios";
 import {connect} from "react-redux";
 import History from "./History";
 
+import {loadHistoryData} from "../../actions/index"
+
 class Chat extends React.Component {
     constructor (props) {
         super(props);
     }
     componentDidMount() {
+        this.getChatHistory();
+    }
 
+    getChatHistory() {
+
+        axios({
+            method: 'post',
+            url: '/api/get_chat_history.php',
+            data: 'chat_id=1'
+        }).then((response) => {
+            if (!response.data.error) {
+
+                this.props.loadHistoryData(response.data);
+            }
+        }).catch(function (error) {
+            console.log(error);
+        });
     }
 
     render () {
@@ -54,4 +72,11 @@ function mapStateToProps(state) {
     };
 }
 
-export default connect(mapStateToProps)(Chat);
+const mapDispatchToProps = (dispatch) => {
+    return {
+        //test: (content) => { dispatch({type: 'TEST_TYPE', payload: '123123'}) },
+        loadHistoryData: (data) => {dispatch(loadHistoryData(data))}
+    };
+};
+
+export default connect(mapStateToProps,mapDispatchToProps)(Chat);

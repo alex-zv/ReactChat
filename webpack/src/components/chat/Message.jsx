@@ -6,7 +6,7 @@ class Message extends React.Component {
         super(props);
     }
     render () {
-        const {userName,text,date} = this.props.data;
+        const {name,message,date_send} = this.props.data;
         return (
             <div className="message-item">
                 <div className="message-item__avatar">
@@ -15,14 +15,14 @@ class Message extends React.Component {
                 <div className="message-item__body">
                     <div className="message-item__top">
                         <div className="message-item__name">
-                            {userName}
+                            {name}
                         </div>
                         <div className="message-item__date">
-                            {date}
+                            {date_send}
                         </div>
                     </div>
                     <div className="message-item__text">
-                        {text}
+                        {message}
                     </div>
                 </div>
             </div>

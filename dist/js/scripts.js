@@ -37254,6 +37254,38 @@ module.exports = function(originalModule) {
 
 /***/ }),
 
+/***/ "./src/actions/index.js":
+/*!******************************!*\
+  !*** ./src/actions/index.js ***!
+  \******************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.loadUsersData = loadUsersData;
+exports.loadHistoryData = loadHistoryData;
+
+function loadUsersData(payload) {
+  return {
+    type: "LOAD_USERS_DATA",
+    payload: payload
+  };
+}
+
+function loadHistoryData(payload) {
+  return {
+    type: "LOAD_HISTORY_DATA",
+    payload: payload
+  };
+}
+
+/***/ }),
+
 /***/ "./src/components/App.js":
 /*!*******************************!*\
   !*** ./src/components/App.js ***!
@@ -37358,6 +37390,8 @@ var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-r
 
 var _History = _interopRequireDefault(__webpack_require__(/*! ./History */ "./src/components/chat/History.jsx"));
 
+var _index = __webpack_require__(/*! ../../actions/index */ "./src/actions/index.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
@@ -37391,7 +37425,26 @@ function (_React$Component) {
 
   _createClass(Chat, [{
     key: "componentDidMount",
-    value: function componentDidMount() {}
+    value: function componentDidMount() {
+      this.getChatHistory();
+    }
+  }, {
+    key: "getChatHistory",
+    value: function getChatHistory() {
+      var _this = this;
+
+      (0, _axios["default"])({
+        method: 'post',
+        url: '/api/get_chat_history.php',
+        data: 'chat_id=1'
+      }).then(function (response) {
+        if (!response.data.error) {
+          _this.props.loadHistoryData(response.data);
+        }
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
   }, {
     key: "render",
     value: function render() {
@@ -37431,7 +37484,16 @@ function mapStateToProps(state) {
   };
 }
 
-var _default = (0, _reactRedux.connect)(mapStateToProps)(Chat);
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    //test: (content) => { dispatch({type: 'TEST_TYPE', payload: '123123'}) },
+    loadHistoryData: function loadHistoryData(data) {
+      dispatch((0, _index.loadHistoryData)(data));
+    }
+  };
+};
+
+var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Chat);
 
 exports["default"] = _default;
 
@@ -37504,6 +37566,7 @@ function (_React$Component) {
   }, {
     key: "render",
     value: function render() {
+      console.log(this.props.history);
       var messages = this.props.history.map(function (message, index) {
         return _react["default"].createElement(_Message["default"], {
           data: message,
@@ -37527,18 +37590,7 @@ var mapStateToProps = function mapStateToProps(state) {
   };
 };
 
-var mapDispatchToProps = function mapDispatchToProps(dispatch) {
-  return {
-    test: function test(content) {
-      dispatch({
-        type: 'TEST_TYPE',
-        payload: '123123'
-      });
-    }
-  };
-};
-
-var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(History);
+var _default = (0, _reactRedux.connect)(mapStateToProps)(History);
 
 exports["default"] = _default;
 
@@ -37598,9 +37650,9 @@ function (_React$Component) {
     key: "render",
     value: function render() {
       var _this$props$data = this.props.data,
-          userName = _this$props$data.userName,
-          text = _this$props$data.text,
-          date = _this$props$data.date;
+          name = _this$props$data.name,
+          message = _this$props$data.message,
+          date_send = _this$props$data.date_send;
       return _react["default"].createElement("div", {
         className: "message-item"
       }, _react["default"].createElement("div", {
@@ -37615,11 +37667,11 @@ function (_React$Component) {
         className: "message-item__top"
       }, _react["default"].createElement("div", {
         className: "message-item__name"
-      }, userName), _react["default"].createElement("div", {
+      }, name), _react["default"].createElement("div", {
         className: "message-item__date"
-      }, date)), _react["default"].createElement("div", {
+      }, date_send)), _react["default"].createElement("div", {
         className: "message-item__text"
-      }, text)));
+      }, message)));
     }
   }]);
 
@@ -37742,6 +37794,11 @@ function rootReducer() {
     case 'LOAD_USERS_DATA':
       return _objectSpread({}, state, {
         users: action.payload
+      });
+
+    case 'LOAD_HISTORY_DATA':
+      return _objectSpread({}, state, {
+        history: action.payload
       });
 
     default:

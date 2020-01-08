@@ -62,6 +62,11 @@ function rootReducer(state = initialState, action) {
                 ...state,
                 users: action.payload
             };
+        case 'LOAD_HISTORY_DATA':
+            return {
+                ...state,
+                history: action.payload
+            };
         default:
             return state;
     }
