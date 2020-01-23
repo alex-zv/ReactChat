@@ -1,6 +1,11 @@
 import React from "react";
 import axios from "axios";
-import {serializeData} from "../libs/Lib";
+
+
+
+import {serializeData} from "../../libs/Lib";
+import {connect} from "react-redux";
+import {setLoginStatus} from "../../actions";
 
 
 class Login extends React.Component {
@@ -17,22 +22,19 @@ class Login extends React.Component {
     }
 
     handleChange(e) {
-        console.log(e.target.name);
-        if (e.target.name === 'login') {
-
-            this.setState({
-                login: e.target.value
-            })
-        } else {
-            this.setState({
-                password: e.target.value
-            })
-        }
+        const name = e.target.name;
+        const value = e.target.value;
+        this.setState({ [name]: value });
     }
 
 
     handleSubmit (e) {
         e.preventDefault();
+
+        this.setState({
+            error: ''
+        });
+
         let requestData = {};
 
         requestData.login = this.state.login;
@@ -42,9 +44,15 @@ class Login extends React.Component {
             url: '/api/login.php',
             data: serializeData(requestData)
         }).then((response) => {
-            if (!response.data.error) {
 
-                this.props.loadHistoryData(response.data);
+            if (response.data.error) {
+                //this.props.loadHistoryData(response.data);
+                this.setState({
+                    error: response.data.error
+                })
+            }
+            if (response.data.success) {
+                this.props.setLoginStatus(true);
             }
         }).catch(function (error) {
             console.log(error);
@@ -56,18 +64,20 @@ class Login extends React.Component {
     }
 
     render () {
-
-        let error = this.state.error ? <div className="text-danger">{this.state.error}</div> : '';
+        const error = this.state.error ? <div className="text-danger">{this.state.error}</div> : '';
 
         return (
             <div className="form-container">
+                <div className="form-title">
+                    Login form
+                </div>
                 <form action="#" onSubmit={this.handleSubmit} >
                     {error}
                     <div className="input-wrap">
-                        <input type="text" name="login" onChange = {this.handleChange} />
+                        <input type="text" name="login" autoComplete="off" placeholder="Login" onChange = {this.handleChange} />
                     </div>
                     <div className="input-wrap">
-                        <input type="password" name="password" onChange = {this.handleChange} />
+                        <input type="password" name="password" autoComplete="off" placeholder="Password" onChange = {this.handleChange} />
                     </div>
                     <div className="form-bottom">
                         <button className="btn-style" type="submit">Отправить</button>
@@ -78,4 +88,10 @@ class Login extends React.Component {
     }
 }
 
-export default Login;
+const mapDispatchToProps = (dispatch) => {
+    return {
+        setLoginStatus: (status) => dispatch(setLoginStatus(status))
+    };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

@@ -20,7 +20,7 @@ class MainModel {
         return $mysqli->query($sql);
     }
 
-    private function dbSelect($sql) {
+    public function dbSelect($sql) {
         global $mysqli;
 
         $data = false;
@@ -57,7 +57,7 @@ class MainModel {
 
 
 
-        if ($this->auth->isLogin()) {
+        if ($this->auth->isAuthorized()) {
             $chat_id = isset($_POST['chat_id']) ? (int)$_POST['chat_id'] : false;
             if (!$chat_id) {
                 return 'no-data';
@@ -71,6 +71,33 @@ class MainModel {
             if ($result) {
                 return $result;
             }
+        }
+
+
+    }
+
+    public function sendMessage ($message) {
+
+
+
+        if ($this->auth->isAuthorized()) {
+
+            $user_id = $_SESSION['login']['user_id'];
+
+            $sql = "INSERT INTO chat_history SET 
+                        user_id = '" . $user_id . "', 
+                        chat_id = '" . 1 . "',
+                        message = '" . $message . "',
+                        date_send = NOW()";
+
+            //return $this->dbInsert($sql);
+            if ($this->dbInsert($sql)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
         }
 
 

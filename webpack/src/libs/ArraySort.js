@@ -1,4 +1,4 @@
-function arraySort (array, sortType, fieldName) {
+const arraySort = (array, sortType, fieldName) => {
     let sortFunc;
     if (!fieldName) fieldName = 'id';
     if (sortType === 'ASC') {
@@ -22,6 +22,6 @@ function arraySort (array, sortType, fieldName) {
     }
 
     return array.sort(sortFunc);
-}
+};
 
 export default arraySort;

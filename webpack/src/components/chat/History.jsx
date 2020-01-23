@@ -1,29 +1,34 @@
 import React from "react";
-import axios from "axios";
 import {connect} from "react-redux";
 
+import PropTypes from 'prop-types';
 import Message from "./Message";
 
 class History extends React.Component {
     constructor (props) {
         super(props);
 
-        this.state = {
-
-        };
-
         this.historyContainer = React.createRef();
     }
+
+    scrollToBottom() {
+        setTimeout(() => this.historyContainer.current.scrollTop = this.historyContainer.current.scrollHeight, 50);
+    }
+
     componentDidMount() {
-        this.historyContainer.current.scrollTop = this.historyContainer.current.scrollHeight;
+        this.scrollToBottom();
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+
+        if (this.props.history !== prevProps.history) {
+            this.scrollToBottom();
+        }
     }
 
     render () {
-
-        console.log(this.props.history);
-
         const messages = this.props.history.map( (message, index) =>
-            <Message data={message} key={message.history_id} />
+            <Message data={message} key={message.chat_history_id} />
         );
 
         return (
@@ -34,13 +39,16 @@ class History extends React.Component {
     }
 }
 
+History.propTypes = {
+    users: PropTypes.array,
+    history: PropTypes.array,
+};
+
 const mapStateToProps = (state) => {
     return {
         users: state.users,
         history: state.history
     };
 };
-
-
 
 export default connect(mapStateToProps)(History);

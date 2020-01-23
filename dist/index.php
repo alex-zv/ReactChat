@@ -5,7 +5,10 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="shortcut icon" href="/img/avatar_placeholder.png" type="image/png">
     <title>React</title>
+
+    <!--<script src="//cdn.muicss.com/mui-0.10.0/js/mui.min.js"></script>-->
     <link rel="stylesheet" href="style.css">
 
 </head>

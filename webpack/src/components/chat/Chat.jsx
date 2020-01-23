@@ -1,49 +1,92 @@
 import React from "react";
-
-import axios from "axios";
+import PropTypes from 'prop-types';
 import {connect} from "react-redux";
-import History from "./History";
 
-import {loadHistoryData} from "../../actions/index"
+import {getHistoryData, sendMessage} from "../../actions/index";
+import {Preloader} from "../shared/Preloader";
+
+const History = React.lazy(() => import('./History'));
+const UserList = React.lazy(() => import('./UserList'));
 
 class Chat extends React.Component {
     constructor (props) {
         super(props);
+        this.state = {
+            isUsersShow: false,
+            message: '',
+        };
+
+        this.showUsersBtnHandler = this.showUsersBtnHandler.bind(this);
+        this.sendBtnHandler = this.sendBtnHandler.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+
     }
     componentDidMount() {
-        this.getChatHistory();
+        this.props.getHistoryData(this.props.chatId);
+
+        this.updateTimer = setInterval(() => {
+            this.props.getHistoryData(this.props.chatId);
+        }, 3000)
+    }
+    componentWillUnmount() {
+        clearTimeout(this.updateTimer);
     }
 
-    getChatHistory() {
+    sendBtnHandler () {
+        //console.log(this);
+        if (this.state.message.length > 0) {
+            this.props.sendMessage(this.state.message).then((data) => {
+                this.setState({
+                    message: ''
+                });
+                this.props.getHistoryData(this.props.chatId);
+            });
+        }
+    }
 
-        axios({
-            method: 'post',
-            url: '/api/get_chat_history.php',
-            data: 'chat_id=1'
-        }).then((response) => {
-            if (!response.data.error) {
+    handleChange (e) {
+        let value = e.target.value;
+        this.setState({
+            message: value
+        })
+    }
 
-                this.props.loadHistoryData(response.data);
-            }
-        }).catch(function (error) {
-            console.log(error);
-        });
+
+    showUsersBtnHandler () {
+        this.setState({
+            isUsersShow: !this.state.isUsersShow
+        })
     }
 
     render () {
+
+        const {isUsersShow} = this.state;
+        const {isGettingHistory, gettingHistoryDataError} = this.props;
+
         return (
             <div className="chat">
                 <div className="chat-wrapper">
-                    <div className="chat-sidebar">
-                        Menu here
+                    <div className={"sidebar users-container" + (isUsersShow ? ' opened' : '')}>
+
+                        <React.Suspense fallback={<Preloader/>}>
+                            <UserList />
+                        </React.Suspense>
                     </div>
                     <div className="chat-top-panel">
-                        <div>
+                        <div className="menu-btn" onClick={this.showUsersBtnHandler}>
                             Menu btn
                         </div>
                     </div>
                     <div className="chat-main">
-                        <History/>
+
+                        {isGettingHistory && <Preloader/>}
+
+                        {!!gettingHistoryDataError.length && <div className="text-danger"> {gettingHistoryDataError} </div>}
+
+                        <React.Suspense fallback={<Preloader/>}>
+                            <History />
+                        </React.Suspense>
+
 
                         <div className="bottom-panel">
                             <div className="bottom-panel__left">
@@ -52,10 +95,10 @@ class Chat extends React.Component {
                                 </div>
                             </div>
                             <div className="bottom-panel__middle">
-                                <textarea placeholder="Your message"></textarea>
+                                <textarea placeholder="Your message" onChange={this.handleChange} value={this.state.message}></textarea>
                             </div>
                             <div className="bottom-panel__right">
-                                <button className="btn">Send</button>
+                                <button className="btn" onClick={this.sendBtnHandler}>Send</button>
                             </div>
                         </div>
                     </div>
@@ -65,17 +108,24 @@ class Chat extends React.Component {
     }
 }
 
+Chat.propTypes = {
+    isGettingHistory: PropTypes.bool,
+    gettingHistoryDataError: PropTypes.string,
+    chatId: PropTypes.number.isRequired
+};
+
 function mapStateToProps(state) {
     return {
-        // orderBooksData: state.orderBooksData,
-
+        isGettingHistory: state.isGettingHistory,
+        gettingHistoryDataError: state.gettingHistoryDataError,
+        chatId: state.chatId
     };
 }
 
 const mapDispatchToProps = (dispatch) => {
     return {
-        //test: (content) => { dispatch({type: 'TEST_TYPE', payload: '123123'}) },
-        loadHistoryData: (data) => {dispatch(loadHistoryData(data))}
+        getHistoryData: (chat_id) => dispatch(getHistoryData(chat_id)),
+        sendMessage: (message) => dispatch(sendMessage(message))
     };
 };
 

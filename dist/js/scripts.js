@@ -35059,6 +35059,38 @@ if (false) {} else {
 
 /***/ }),
 
+/***/ "./node_modules/redux-thunk/es/index.js":
+/*!**********************************************!*\
+  !*** ./node_modules/redux-thunk/es/index.js ***!
+  \**********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+function createThunkMiddleware(extraArgument) {
+  return function (_ref) {
+    var dispatch = _ref.dispatch,
+        getState = _ref.getState;
+    return function (next) {
+      return function (action) {
+        if (typeof action === 'function') {
+          return action(dispatch, getState, extraArgument);
+        }
+
+        return next(action);
+      };
+    };
+  };
+}
+
+var thunk = createThunkMiddleware();
+thunk.withExtraArgument = createThunkMiddleware;
+
+/* harmony default export */ __webpack_exports__["default"] = (thunk);
+
+/***/ }),
+
 /***/ "./node_modules/redux/es/redux.js":
 /*!****************************************!*\
   !*** ./node_modules/redux/es/redux.js ***!
@@ -37267,22 +37299,103 @@ module.exports = function(originalModule) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.loadUsersData = loadUsersData;
-exports.loadHistoryData = loadHistoryData;
+exports.setLoginStatus = setLoginStatus;
+exports.toggleIsLoadingData = toggleIsLoadingData;
+exports.sendMessage = exports.getHistoryData = void 0;
 
-function loadUsersData(payload) {
+var _api = __webpack_require__(/*! ../libs/api */ "./src/libs/api.js");
+
+function setLoginStatus(payload) {
   return {
-    type: "LOAD_USERS_DATA",
+    type: "SET_LOGIN_STATUS",
     payload: payload
   };
 }
 
-function loadHistoryData(payload) {
+function toggleIsLoadingData(payload) {
   return {
-    type: "LOAD_HISTORY_DATA",
+    type: "IS_GETTING_HISTORY",
     payload: payload
   };
 }
+
+var getHistoryData = function getHistoryData(chat_id) {
+  return function (dispatch) {
+    dispatch(toggleIsLoadingData(true));
+    return _api.customChatApi.getMessageHistory(chat_id).then(function (response) {
+      if (!response.data.error) {
+        dispatch(toggleIsLoadingData(false));
+        dispatch(getHistoryDataSuccess(response.data));
+      } else {
+        dispatch(toggleIsLoadingData(false));
+        dispatch(getHistoryDataError(response.data.error));
+      }
+    })["catch"](function (error) {
+      dispatch(toggleIsLoadingData(false));
+      dispatch(getHistoryDataError(error));
+    });
+  };
+};
+
+exports.getHistoryData = getHistoryData;
+
+var getHistoryDataSuccess = function getHistoryDataSuccess(payload) {
+  return {
+    type: "GET_HISTORY_DATA_SUCCESS",
+    payload: payload
+  };
+};
+
+var getHistoryDataError = function getHistoryDataError(payload) {
+  return {
+    type: "GET_HISTORY_DATA_ERROR",
+    payload: payload
+  };
+}; // send message
+
+
+var sendMessage = function sendMessage(message) {
+  return function (dispatch) {
+    dispatch(toggleIsSendingMessage(true));
+    return _api.customChatApi.sendMessage(message).then(function (response) {
+      console.log(response);
+
+      if (!response.data.error) {
+        dispatch(toggleIsSendingMessage(false));
+        dispatch(sendingMessageSuccess(response.data));
+      } else {
+        dispatch(toggleIsLoadingData(false));
+        dispatch(sendingMessageError(response.data.error));
+      }
+    })["catch"](function (error) {
+      dispatch(toggleIsSendingMessage(false));
+      dispatch(sendingMessageError(error));
+    });
+  };
+};
+
+exports.sendMessage = sendMessage;
+
+var toggleIsSendingMessage = function toggleIsSendingMessage(payload) {
+  return {
+    type: "IS_SENDING_MESSAGE",
+    payload: payload
+  };
+};
+
+var sendingMessageSuccess = function sendingMessageSuccess(payload) {
+  return {
+    type: "SENDING_MESSAGE_SUCCESS",
+    payload: payload
+  };
+};
+
+var sendingMessageError = function sendingMessageError(payload) {
+  return {
+    type: "SENDING_MESSAGE_ERROR",
+    payload: payload
+  };
+}; // send message END
 
 /***/ }),
 
@@ -37308,6 +37421,12 @@ var _Chat = _interopRequireDefault(__webpack_require__(/*! ./chat/Chat */ "./src
 var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
 
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+var _Authorization = _interopRequireDefault(__webpack_require__(/*! ./Auth/Authorization */ "./src/components/Auth/Authorization.jsx"));
+
+var _Lib = __webpack_require__(/*! ../libs/Lib */ "./src/libs/Lib.js");
+
+var _actions = __webpack_require__(/*! ../actions */ "./src/actions/index.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -37341,15 +37460,33 @@ function (_React$Component) {
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(App).call(this, props));
     _this.state = {
-      isLogged: true
+      isLogged: false
     };
     return _this;
   }
 
   _createClass(App, [{
+    key: "componentDidMount",
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      // check is loggedIn
+      (0, _axios["default"])({
+        method: 'post',
+        url: '/api/is_auth.php',
+        data: ''
+      }).then(function (response) {
+        if (response.data) {
+          _this2.props.setLoginStatus(true);
+        }
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
+  }, {
     key: "render",
     value: function render() {
-      return _react["default"].createElement(_Chat["default"], null);
+      return _react["default"].createElement(_react["default"].Fragment, null, this.props.isLogged ? _react["default"].createElement(_Chat["default"], null) : _react["default"].createElement(_Authorization["default"], null));
     }
   }]);
 
@@ -37357,12 +37494,426 @@ function (_React$Component) {
 }(_react["default"].Component);
 
 function mapStateToProps(state) {
+  return {
+    // orderBooksData: state.orderBooksData,
+    isLogged: state.isLogged
+  };
+}
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    setLoginStatus: function setLoginStatus(status) {
+      return dispatch((0, _actions.setLoginStatus)(status));
+    }
+  };
+};
+
+var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(App);
+
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/Auth/Authorization.jsx":
+/*!***********************************************!*\
+  !*** ./src/components/Auth/Authorization.jsx ***!
+  \***********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+var _Login = _interopRequireDefault(__webpack_require__(/*! ../Auth/Login */ "./src/components/Auth/Login.jsx"));
+
+var _Registration = _interopRequireDefault(__webpack_require__(/*! ../Auth/Registration */ "./src/components/Auth/Registration.jsx"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function Authorization(props) {
+  var _useState = (0, _react.useState)(true),
+      _useState2 = _slicedToArray(_useState, 2),
+      activeLoginTab = _useState2[0],
+      setActiveLoginTab = _useState2[1];
+
+  var navItemHandler = function navItemHandler(event) {
+    event.preventDefault();
+    setActiveLoginTab(!activeLoginTab);
+  };
+
+  (0, _react.useEffect)(function () {
+    console.log('didMount');
+    return function () {
+      console.log('didUnmount');
+    };
+  });
+  return _react["default"].createElement("div", {
+    className: "authorization"
+  }, _react["default"].createElement("ul", {
+    className: "tab-nav"
+  }, _react["default"].createElement("li", {
+    className: activeLoginTab ? 'active' : '',
+    onClick: navItemHandler
+  }, "Login"), _react["default"].createElement("li", {
+    className: !activeLoginTab ? 'active' : '',
+    onClick: navItemHandler
+  }, "Reg")), _react["default"].createElement("div", {
+    className: "tab-content-wrap"
+  }, activeLoginTab ? _react["default"].createElement(_Login["default"], null) : _react["default"].createElement(_Registration["default"], null)));
+}
+
+function mapStateToProps(state) {
   return {// orderBooksData: state.orderBooksData,
   };
 }
 
-var _default = (0, _reactRedux.connect)(mapStateToProps)(App);
+var _default = (0, _reactRedux.connect)(mapStateToProps)(Authorization);
 
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/Auth/Login.jsx":
+/*!***************************************!*\
+  !*** ./src/components/Auth/Login.jsx ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
+
+var _Lib = __webpack_require__(/*! ../../libs/Lib */ "./src/libs/Lib.js");
+
+var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+var _actions = __webpack_require__(/*! ../../actions */ "./src/actions/index.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Login =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(Login, _React$Component);
+
+  function Login(props) {
+    var _this;
+
+    _classCallCheck(this, Login);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Login).call(this, props));
+    _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
+    _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_this));
+    _this.state = {
+      login: '',
+      password: '',
+      error: ''
+    };
+    return _this;
+  }
+
+  _createClass(Login, [{
+    key: "handleChange",
+    value: function handleChange(e) {
+      var name = e.target.name;
+      var value = e.target.value;
+      this.setState(_defineProperty({}, name, value));
+    }
+  }, {
+    key: "handleSubmit",
+    value: function handleSubmit(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+      this.setState({
+        error: ''
+      });
+      var requestData = {};
+      requestData.login = this.state.login;
+      requestData.password = this.state.password;
+      (0, _axios["default"])({
+        method: 'post',
+        url: '/api/login.php',
+        data: (0, _Lib.serializeData)(requestData)
+      }).then(function (response) {
+        if (response.data.error) {
+          //this.props.loadHistoryData(response.data);
+          _this2.setState({
+            error: response.data.error
+          });
+        }
+
+        if (response.data.success) {
+          _this2.props.setLoginStatus(true);
+        }
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
+  }, {
+    key: "validate",
+    value: function validate() {}
+  }, {
+    key: "render",
+    value: function render() {
+      var error = this.state.error ? _react["default"].createElement("div", {
+        className: "text-danger"
+      }, this.state.error) : '';
+      return _react["default"].createElement("div", {
+        className: "form-container"
+      }, _react["default"].createElement("div", {
+        className: "form-title"
+      }, "Login form"), _react["default"].createElement("form", {
+        action: "#",
+        onSubmit: this.handleSubmit
+      }, error, _react["default"].createElement("div", {
+        className: "input-wrap"
+      }, _react["default"].createElement("input", {
+        type: "text",
+        name: "login",
+        autoComplete: "off",
+        placeholder: "Login",
+        onChange: this.handleChange
+      })), _react["default"].createElement("div", {
+        className: "input-wrap"
+      }, _react["default"].createElement("input", {
+        type: "password",
+        name: "password",
+        autoComplete: "off",
+        placeholder: "Password",
+        onChange: this.handleChange
+      })), _react["default"].createElement("div", {
+        className: "form-bottom"
+      }, _react["default"].createElement("button", {
+        className: "btn-style",
+        type: "submit"
+      }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C"))));
+    }
+  }]);
+
+  return Login;
+}(_react["default"].Component);
+
+function mapStateToProps(state) {
+  return {
+    // orderBooksData: state.orderBooksData,
+    test: 1
+  };
+}
+
+var mapDispatchToProps = function mapDispatchToProps(dispatch) {
+  return {
+    setLoginStatus: function setLoginStatus(status) {
+      return dispatch((0, _actions.setLoginStatus)(status));
+    }
+  };
+};
+
+var _default = (0, _reactRedux.connect)(mapStateToProps, mapDispatchToProps)(Login);
+
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/Auth/Registration.jsx":
+/*!**********************************************!*\
+  !*** ./src/components/Auth/Registration.jsx ***!
+  \**********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
+
+var _Lib = __webpack_require__(/*! ../../libs/Lib */ "./src/libs/Lib.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+var Login =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(Login, _React$Component);
+
+  function Login(props) {
+    var _this;
+
+    _classCallCheck(this, Login);
+
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Login).call(this, props));
+    _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
+    _this.handleSubmit = _this.handleSubmit.bind(_assertThisInitialized(_this));
+    _this.state = {
+      login: '',
+      password: '',
+      repeat_password: '',
+      error: ''
+    };
+    return _this;
+  }
+
+  _createClass(Login, [{
+    key: "handleChange",
+    value: function handleChange(e) {
+      var name = e.target.name;
+      var value = e.target.value;
+      this.setState(_defineProperty({}, name, value));
+    }
+  }, {
+    key: "handleSubmit",
+    value: function handleSubmit(e) {
+      var _this2 = this;
+
+      e.preventDefault();
+      var requestData = {};
+      requestData.login = this.state.login;
+      requestData.password = this.state.password;
+      (0, _axios["default"])({
+        method: 'post',
+        url: '/api/login.php',
+        data: (0, _Lib.serializeData)(requestData)
+      }).then(function (response) {
+        if (!response.data.error) {
+          _this2.props.loadHistoryData(response.data);
+        }
+      })["catch"](function (error) {
+        console.log(error);
+      });
+    }
+  }, {
+    key: "validate",
+    value: function validate() {}
+  }, {
+    key: "render",
+    value: function render() {
+      var error = this.state.error ? _react["default"].createElement("div", {
+        className: "text-danger"
+      }, this.state.error) : '';
+      return _react["default"].createElement("div", {
+        className: "form-container"
+      }, _react["default"].createElement("div", {
+        className: "form-title"
+      }, "Registration form"), _react["default"].createElement("form", {
+        action: "#",
+        onSubmit: this.handleSubmit,
+        className: "form-style"
+      }, error, _react["default"].createElement("div", {
+        className: "input-wrap"
+      }, _react["default"].createElement("input", {
+        type: "text",
+        name: "login",
+        autoComplete: "off",
+        placeholder: "Login",
+        onChange: this.handleChange
+      })), _react["default"].createElement("div", {
+        className: "input-wrap"
+      }, _react["default"].createElement("input", {
+        type: "password",
+        name: "password",
+        autoComplete: "off",
+        placeholder: "Password",
+        onChange: this.handleChange
+      })), _react["default"].createElement("div", {
+        className: "input-wrap"
+      }, _react["default"].createElement("input", {
+        type: "password",
+        name: "repeat_password",
+        autoComplete: "off",
+        placeholder: "Repeat password",
+        onChange: this.handleChange
+      })), _react["default"].createElement("div", {
+        className: "form-bottom"
+      }, _react["default"].createElement("button", {
+        className: "btn-style",
+        type: "submit"
+      }, "\u041E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u044C"))));
+    }
+  }]);
+
+  return Login;
+}(_react["default"].Component);
+
+var _default = Login;
 exports["default"] = _default;
 
 /***/ }),
@@ -37384,13 +37935,13 @@ exports["default"] = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
-var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
+var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js"));
 
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 
-var _History = _interopRequireDefault(__webpack_require__(/*! ./History */ "./src/components/chat/History.jsx"));
-
 var _index = __webpack_require__(/*! ../../actions/index */ "./src/actions/index.js");
+
+var _Preloader = __webpack_require__(/*! ../shared/Preloader */ "./src/components/shared/Preloader.js");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
@@ -37404,13 +37955,29 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 
 function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
 
-function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
-
 function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function _getRequireWildcardCache() { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+var History = _react["default"].lazy(function () {
+  return Promise.resolve().then(function () {
+    return _interopRequireWildcard(__webpack_require__(/*! ./History */ "./src/components/chat/History.jsx"));
+  });
+});
+
+var UserList = _react["default"].lazy(function () {
+  return Promise.resolve().then(function () {
+    return _interopRequireWildcard(__webpack_require__(/*! ./UserList */ "./src/components/chat/UserList.jsx"));
+  });
+});
 
 var Chat =
 /*#__PURE__*/
@@ -37418,47 +37985,92 @@ function (_React$Component) {
   _inherits(Chat, _React$Component);
 
   function Chat(props) {
+    var _this;
+
     _classCallCheck(this, Chat);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Chat).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(Chat).call(this, props));
+    _this.state = {
+      isUsersShow: false,
+      message: ''
+    };
+    _this.showUsersBtnHandler = _this.showUsersBtnHandler.bind(_assertThisInitialized(_this));
+    _this.sendBtnHandler = _this.sendBtnHandler.bind(_assertThisInitialized(_this));
+    _this.handleChange = _this.handleChange.bind(_assertThisInitialized(_this));
+    return _this;
   }
 
   _createClass(Chat, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.getChatHistory();
+      this.props.getHistoryData(this.props.chatId);
+      /*this.updateTimer = setInterval(() => {
+          this.props.getHistoryData(this.props.chatId);
+      }, 3000)*/
     }
   }, {
-    key: "getChatHistory",
-    value: function getChatHistory() {
-      var _this = this;
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      clearTimeout(this.updateTimer);
+    }
+  }, {
+    key: "sendBtnHandler",
+    value: function sendBtnHandler() {
+      var _this2 = this;
 
-      (0, _axios["default"])({
-        method: 'post',
-        url: '/api/get_chat_history.php',
-        data: 'chat_id=1'
-      }).then(function (response) {
-        if (!response.data.error) {
-          _this.props.loadHistoryData(response.data);
-        }
-      })["catch"](function (error) {
-        console.log(error);
+      //console.log(this);
+      if (this.state.message.length > 0) {
+        this.props.sendMessage(this.state.message).then(function (data) {
+          _this2.setState({
+            message: ''
+          });
+
+          _this2.props.getHistoryData(_this2.props.chatId);
+        });
+      }
+    }
+  }, {
+    key: "handleChange",
+    value: function handleChange(e) {
+      var value = e.target.value;
+      this.setState({
+        message: value
+      });
+    }
+  }, {
+    key: "showUsersBtnHandler",
+    value: function showUsersBtnHandler() {
+      this.setState({
+        isUsersShow: !this.state.isUsersShow
       });
     }
   }, {
     key: "render",
     value: function render() {
+      var isUsersShow = this.state.isUsersShow;
+      var _this$props = this.props,
+          isGettingHistory = _this$props.isGettingHistory,
+          gettingHistoryDataError = _this$props.gettingHistoryDataError;
       return _react["default"].createElement("div", {
         className: "chat"
       }, _react["default"].createElement("div", {
         className: "chat-wrapper"
       }, _react["default"].createElement("div", {
-        className: "chat-sidebar"
-      }, "Menu here"), _react["default"].createElement("div", {
+        className: "sidebar users-container" + (isUsersShow ? ' opened' : '')
+      }, _react["default"].createElement(_react["default"].Suspense, {
+        fallback: _react["default"].createElement(_Preloader.Preloader, null)
+      }, _react["default"].createElement(UserList, null))), _react["default"].createElement("div", {
         className: "chat-top-panel"
-      }, _react["default"].createElement("div", null, "Menu btn")), _react["default"].createElement("div", {
+      }, _react["default"].createElement("div", {
+        className: "menu-btn",
+        onClick: this.showUsersBtnHandler
+      }, "Menu btn")), _react["default"].createElement("div", {
         className: "chat-main"
-      }, _react["default"].createElement(_History["default"], null), _react["default"].createElement("div", {
+      }, isGettingHistory && _react["default"].createElement(_Preloader.Preloader, null), !!gettingHistoryDataError.length && _react["default"].createElement("div", {
+        className: "text-danger"
+      }, " ", gettingHistoryDataError, " "), _react["default"].createElement(_react["default"].Suspense, {
+        fallback: _react["default"].createElement(_Preloader.Preloader, null)
+      }, _react["default"].createElement(History, null)), _react["default"].createElement("div", {
         className: "bottom-panel"
       }, _react["default"].createElement("div", {
         className: "bottom-panel__left"
@@ -37467,11 +38079,14 @@ function (_React$Component) {
       }, "F")), _react["default"].createElement("div", {
         className: "bottom-panel__middle"
       }, _react["default"].createElement("textarea", {
-        placeholder: "Your message"
+        placeholder: "Your message",
+        onChange: this.handleChange,
+        value: this.state.message
       })), _react["default"].createElement("div", {
         className: "bottom-panel__right"
       }, _react["default"].createElement("button", {
-        className: "btn"
+        className: "btn",
+        onClick: this.sendBtnHandler
       }, "Send"))))));
     }
   }]);
@@ -37479,16 +38094,28 @@ function (_React$Component) {
   return Chat;
 }(_react["default"].Component);
 
+Chat.propTypes = {
+  isGettingHistory: _propTypes["default"].bool,
+  gettingHistoryDataError: _propTypes["default"].string,
+  chatId: _propTypes["default"].number.isRequired
+};
+
 function mapStateToProps(state) {
-  return {// orderBooksData: state.orderBooksData,
+  return {
+    // orderBooksData: state.orderBooksData,
+    isGettingHistory: state.isGettingHistory,
+    gettingHistoryDataError: state.gettingHistoryDataError,
+    chatId: state.chatId
   };
 }
 
 var mapDispatchToProps = function mapDispatchToProps(dispatch) {
   return {
-    //test: (content) => { dispatch({type: 'TEST_TYPE', payload: '123123'}) },
-    loadHistoryData: function loadHistoryData(data) {
-      dispatch((0, _index.loadHistoryData)(data));
+    getHistoryData: function getHistoryData(chat_id) {
+      return dispatch((0, _index.getHistoryData)(chat_id));
+    },
+    sendMessage: function sendMessage(message) {
+      return dispatch((0, _index.sendMessage)(message));
     }
   };
 };
@@ -37516,9 +38143,9 @@ exports["default"] = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
 
-var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
-
 var _reactRedux = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+
+var _propTypes = _interopRequireDefault(__webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js"));
 
 var _Message = _interopRequireDefault(__webpack_require__(/*! ./Message */ "./src/components/chat/Message.jsx"));
 
@@ -37553,24 +38180,38 @@ function (_React$Component) {
     _classCallCheck(this, History);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(History).call(this, props));
-    _this.state = {};
     _this.historyContainer = _react["default"].createRef();
     return _this;
   }
 
   _createClass(History, [{
+    key: "scrollToBottom",
+    value: function scrollToBottom() {
+      var _this2 = this;
+
+      setTimeout(function () {
+        return _this2.historyContainer.current.scrollTop = _this2.historyContainer.current.scrollHeight;
+      }, 50);
+    }
+  }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      this.historyContainer.current.scrollTop = this.historyContainer.current.scrollHeight;
+      this.scrollToBottom();
+    }
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState, snapshot) {
+      if (this.props.history !== prevProps.history) {
+        this.scrollToBottom();
+      }
     }
   }, {
     key: "render",
     value: function render() {
-      console.log(this.props.history);
       var messages = this.props.history.map(function (message, index) {
         return _react["default"].createElement(_Message["default"], {
           data: message,
-          key: message.history_id
+          key: message.chat_history_id
         });
       });
       return _react["default"].createElement("div", {
@@ -37582,6 +38223,11 @@ function (_React$Component) {
 
   return History;
 }(_react["default"].Component);
+
+History.propTypes = {
+  users: _propTypes["default"].array,
+  history: _propTypes["default"].array
+};
 
 var mapStateToProps = function mapStateToProps(state) {
   return {
@@ -37600,6 +38246,56 @@ exports["default"] = _default;
 /*!*****************************************!*\
   !*** ./src/components/chat/Message.jsx ***!
   \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function Message(props) {
+  var _props$data = props.data,
+      name = _props$data.name,
+      message = _props$data.message,
+      date_send = _props$data.date_send;
+  return _react["default"].createElement("div", {
+    className: "message-item"
+  }, _react["default"].createElement("div", {
+    className: "message-item__avatar"
+  }, _react["default"].createElement("img", {
+    className: "img-responsive",
+    src: "img/avatar_placeholder.png",
+    alt: ""
+  })), _react["default"].createElement("div", {
+    className: "message-item__body"
+  }, _react["default"].createElement("div", {
+    className: "message-item__top"
+  }, _react["default"].createElement("div", {
+    className: "message-item__name"
+  }, name), _react["default"].createElement("div", {
+    className: "message-item__date"
+  }, date_send)), _react["default"].createElement("div", {
+    className: "message-item__text"
+  }, message)));
+}
+
+var _default = Message;
+exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/chat/UserList.jsx":
+/*!******************************************!*\
+  !*** ./src/components/chat/UserList.jsx ***!
+  \******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -37635,47 +38331,27 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
 
-var Message =
+var UserList =
 /*#__PURE__*/
 function (_React$Component) {
-  _inherits(Message, _React$Component);
+  _inherits(UserList, _React$Component);
 
-  function Message(props) {
-    _classCallCheck(this, Message);
+  function UserList(props) {
+    _classCallCheck(this, UserList);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(Message).call(this, props));
+    return _possibleConstructorReturn(this, _getPrototypeOf(UserList).call(this, props));
   }
 
-  _createClass(Message, [{
+  _createClass(UserList, [{
     key: "render",
     value: function render() {
-      var _this$props$data = this.props.data,
-          name = _this$props$data.name,
-          message = _this$props$data.message,
-          date_send = _this$props$data.date_send;
-      return _react["default"].createElement("div", {
-        className: "message-item"
-      }, _react["default"].createElement("div", {
-        className: "message-item__avatar"
-      }, _react["default"].createElement("img", {
-        className: "img-responsive",
-        src: "img/avatar_placeholder.png",
-        alt: ""
-      })), _react["default"].createElement("div", {
-        className: "message-item__body"
-      }, _react["default"].createElement("div", {
-        className: "message-item__top"
-      }, _react["default"].createElement("div", {
-        className: "message-item__name"
-      }, name), _react["default"].createElement("div", {
-        className: "message-item__date"
-      }, date_send)), _react["default"].createElement("div", {
-        className: "message-item__text"
-      }, message)));
+      return _react["default"].createElement("ul", {
+        className: "users-list"
+      }, _react["default"].createElement("li", null, "Alex"), _react["default"].createElement("li", null, "Jane"));
     }
   }]);
 
-  return Message;
+  return UserList;
 }(_react["default"].Component);
 
 function mapStateToProps(state) {
@@ -37683,9 +38359,38 @@ function mapStateToProps(state) {
   };
 }
 
-var _default = (0, _reactRedux.connect)(mapStateToProps)(Message);
+var _default = (0, _reactRedux.connect)(mapStateToProps)(UserList);
 
 exports["default"] = _default;
+
+/***/ }),
+
+/***/ "./src/components/shared/Preloader.js":
+/*!********************************************!*\
+  !*** ./src/components/shared/Preloader.js ***!
+  \********************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Preloader = Preloader;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "./node_modules/react/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+function Preloader() {
+  return _react["default"].createElement("div", {
+    className: "preloader"
+  }, _react["default"].createElement("div", {
+    className: "lds-ripple"
+  }, _react["default"].createElement("div", null), _react["default"].createElement("div", null)));
+}
 
 /***/ }),
 
@@ -37716,6 +38421,73 @@ document.addEventListener('DOMContentLoaded', function () {
     store: _index["default"]
   }, _react["default"].createElement(_App["default"], null)), document.getElementById('app'));
 });
+
+/***/ }),
+
+/***/ "./src/libs/Lib.js":
+/*!*************************!*\
+  !*** ./src/libs/Lib.js ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.serializeData = serializeData;
+
+function serializeData(data) {
+  var key,
+      ret = '';
+
+  for (key in data) {
+    ret += key + '=' + data[key] + '&';
+  }
+
+  return ret.substring(0, ret.length - 1);
+}
+
+/***/ }),
+
+/***/ "./src/libs/api.js":
+/*!*************************!*\
+  !*** ./src/libs/api.js ***!
+  \*************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.customChatApi = void 0;
+
+var _axios = _interopRequireDefault(__webpack_require__(/*! axios */ "./node_modules/axios/index.js"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var customChatApi = {
+  getMessageHistory: function getMessageHistory(chat_id) {
+    return (0, _axios["default"])({
+      method: 'post',
+      url: '/api/get_chat_history.php',
+      data: 'chat_id=' + chat_id
+    });
+  },
+  sendMessage: function sendMessage(message) {
+    return (0, _axios["default"])({
+      method: 'post',
+      url: '/api/send_message.php',
+      data: 'message=' + message
+    });
+  }
+};
+exports.customChatApi = customChatApi;
 
 /***/ }),
 
@@ -37753,37 +38525,14 @@ var initialState = {
     isOnline: true,
     isTyping: false
   }],
-  history: [{
-    history_id: 1,
-    userName: 'John',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur fugiat pariatur placeat quam? Amet facilis odio perferendis quam similique tempora.',
-    date: '21:48:12'
-  }, {
-    history_id: 2,
-    userName: 'Jane',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate dolorum earum ipsa nisi unde voluptates!',
-    date: '21:49:48'
-  }, {
-    history_id: 3,
-    userName: 'John',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur fugiat pariatur placeat quam? Amet facilis odio perferendis quam similique tempora.',
-    date: '21:48:12'
-  }, {
-    history_id: 4,
-    userName: 'Jane',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate dolorum earum ipsa nisi unde voluptates!',
-    date: '21:49:48'
-  }, {
-    history_id: 5,
-    userName: 'John',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Consectetur fugiat pariatur placeat quam? Amet facilis odio perferendis quam similique tempora.',
-    date: '21:48:12'
-  }, {
-    history_id: 6,
-    userName: 'Jane',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cupiditate dolorum earum ipsa nisi unde voluptates!',
-    date: '21:49:48'
-  }]
+  history: [],
+  userInfo: {
+    name: ''
+  },
+  isLogged: false,
+  isGettingHistory: false,
+  gettingHistoryDataError: '',
+  chatId: 1
 };
 
 function rootReducer() {
@@ -37796,9 +38545,24 @@ function rootReducer() {
         users: action.payload
       });
 
-    case 'LOAD_HISTORY_DATA':
+    case 'GET_HISTORY_DATA_SUCCESS':
       return _objectSpread({}, state, {
         history: action.payload
+      });
+
+    case 'IS_GETTING_HISTORY':
+      return _objectSpread({}, state, {
+        isGettingHistory: action.payload
+      });
+
+    case 'GET_HISTORY_DATA_ERROR':
+      return _objectSpread({}, state, {
+        gettingHistoryDataError: action.payload
+      });
+
+    case 'SET_LOGIN_STATUS':
+      return _objectSpread({}, state, {
+        isLogged: action.payload
       });
 
     default:
@@ -37829,11 +38593,13 @@ exports["default"] = void 0;
 
 var _redux = __webpack_require__(/*! redux */ "./node_modules/redux/es/redux.js");
 
+var _reduxThunk = _interopRequireDefault(__webpack_require__(/*! redux-thunk */ "./node_modules/redux-thunk/es/index.js"));
+
 var _index = _interopRequireDefault(__webpack_require__(/*! ../reducers/index */ "./src/reducers/index.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
-var store = (0, _redux.createStore)(_index["default"]);
+var store = (0, _redux.createStore)(_index["default"], (0, _redux.applyMiddleware)(_reduxThunk["default"]));
 var _default = store;
 exports["default"] = _default;
 
